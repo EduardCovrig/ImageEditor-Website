@@ -48,7 +48,7 @@ git clone https://github.com/EduardCovrig/ImageEditor-Website
 cd ImageEditor-Website
 ```
 
-*If this is a local project without a repo, simply ensure you have the index.html and the JavaScript file (containing the provided code) in the same directory.*
+*If this is a local project without a repo, simply ensure you have the index.html, styles.css and the JavaScript file (containing the provided code) in the same directory.*
 
 2. **Open the file:** Open the main HTML file (index.html) directly in your web browser.
 

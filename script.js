@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // === ELEMENTE DOM ===
+    // ======================= ELEMENTE DOM ==============
     const uploadInput = document.getElementById('upload-file');
     const imageElement = document.querySelector('.img');
     const imgWrapper = document.querySelector('.img-wrapper');
@@ -11,9 +11,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const placeholderText = document.querySelector('.placeholder-text');
 
     // === VARIABILE GLOBALE ===
-    let originalImage = null; // Tine imaginea originala
+    let originalImage = null; // Tine imagnea originala
     let currentTool = 'select';
-    let isDrawing = false; // true daca mouseul e apasat pe canvas
+    let isDrawing = false; // true daca mouseul e apsaat pe canvas
     let startX = 0; // Pozitia X de start a selectiei
     let startY = 0; // Pozitia Y de start a selectiei
     let currentSelection = { x: 0, y: 0, w: 0, h: 0 }; // Dreptunghiul de selectie curent
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let scaleModal = null; //pt pop-up
     let textModal = null; //pt pop-up text
     
-    //pt propietatile textului
+    //pt propietatiile textului
     let currentTextSize = 30; 
     let currentTextColor = '#FFFFFF'; 
 
@@ -47,14 +47,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const imgOrigW = originalImage.width; //dimensiunile originale ale imaginii (nescalate)
         const imgOrigH = originalImage.height;
         let dW, dH, dX, dY; // dW=DisplayWidth, dH=DisplayHeight, dX=DisplayX, dY=DisplayY
-        const ratioImage = imgOrigW / imgOrigH; 
+        const raportImagine = imgOrigW / imgOrigH; 
 
-        if (ratioImage > (wrapperW / wrapperH)) {
+        if (raportImagine > (wrapperW / wrapperH)) { // paranteza reprezinta raportul pt wrapper
             dW = wrapperW;
-            dH = wrapperW / ratioImage;
+            dH = wrapperW / raportImagine;
         } else {
             dH = wrapperH;
-            dW = wrapperH * ratioImage;
+            dW = wrapperH * raportImagine;
         }
         dX = (wrapperW - dW) / 2;
         dY = (wrapperH - dH) / 2;
@@ -64,8 +64,8 @@ document.addEventListener('DOMContentLoaded', () => {
         selectionCanvas.height = dH;
     
         //canvasul incepe exact de unde incepe si imaginea
-        selectionCanvas.style.left = `${dX}px`;
-        selectionCanvas.style.top = `${dY}px`;
+        selectionCanvas.style.left = dX + "px";
+        selectionCanvas.style.top = dY + "px";
 
         //noua rata de scalare(imagine originala/scalata sa incapa pe ecran)
         scaleX = imgOrigW / dW;
@@ -97,20 +97,17 @@ document.addEventListener('DOMContentLoaded', () => {
         reader.readAsDataURL(file);
     }
 }; 
-function preventDefaults(e) { //anulam comportamentul default de la buton/drag & drop
-    e.preventDefault();
-    e.stopPropagation();
-}
-
 //1. pt upload prin buton
 uploadInput.addEventListener('change', (e) => {
-    preventDefaults(e);
+    preventDefaults(e); ////anulam comportamentul default de la buton/drag & drop
     loadImageFile(e.target.files[0]);
 });
 
-['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-    imgWrapper.addEventListener(eventName, preventDefaults); 
-});
+//anulam si pentru astea 4 comportamentul default 
+imgWrapper.addEventListener('dragenter', e => e.preventDefault());
+imgWrapper.addEventListener('dragover', e => e.preventDefault());
+imgWrapper.addEventListener('dragleave', e => e.preventDefault());
+imgWrapper.addEventListener('drop', e => e.preventDefault());
 
 // Feedback vizual la drag
 ['dragenter', 'dragover'].forEach(eventName => { //la evenimentele astea adaugam clasa asta, care in css va face un contur cu galben
@@ -123,9 +120,9 @@ uploadInput.addEventListener('change', (e) => {
 
 //2. pt upload prin drag & drop
 imgWrapper.addEventListener('drop', (e) => {
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-        loadImageFile(files[0]);
+    const files = e.dataTransfer.files; //luam fisierele puse
+    if (files.length > 0) { //daca exista
+        loadImageFile(files[0]); //le punem
     }
 });
 
@@ -134,8 +131,8 @@ imgWrapper.addEventListener('drop', (e) => {
     toolButtons.forEach(button => {
         button.addEventListener('click', () => {
             const toolId = button.id.replace('-tool', ''); 
-            //pt o gestionare mai simpla in cod, facem fiecare id sa fie fara tool in nume
-            setActiveTool(toolId);
+            //pt o gestionare mai simpla in cod, facem fiecare id sa fie fara tool in nume, inlocuind tool cu spatiu gol
+            setActiveTool(toolId); 
         });
     });
 
@@ -147,9 +144,8 @@ imgWrapper.addEventListener('drop', (e) => {
                 applyCrop();
             } else if (toolId === 'delete') {
                 deleteSection(currentSelection);
-            } else if (toolId === 'effect') {
-                 // nu se apeleaza nimic, deoarece utilizatorul trebuie sa aleaga culoarea (logica se afla in moseup)
             } 
+            //pt restul logica nu se afla aici, ci in mouseup de mai jos, ca au nevoie de detalii luate din pop-up
         }
         clearCanvas();
         currentSelection = { x: 0, y: 0, w: 0, h: 0 };
@@ -158,6 +154,7 @@ imgWrapper.addEventListener('drop', (e) => {
         currentTool = toolId;
 
         selectionCanvas.style.pointerEvents = (toolId === 'crop' || toolId === 'select' || toolId === 'text' || toolId === 'delete' || toolId === 'effect') ? 'auto' : 'none';
+        //alege tipul de cursor
 
         if (toolId === 'scale') {
             showScaleModal(); //afiseaz popup pt scale 
@@ -202,7 +199,8 @@ imgWrapper.addEventListener('drop', (e) => {
     const getCanvasCoords = (e) => {
         const rect = selectionCanvas.getBoundingClientRect();
         return {
-            x: e.clientX - rect.left,
+            x: e.clientX - rect.left, //clientX e pozitia absoluta a mouse-ului in fereastra
+            //facand scaderea, obtinem exact coordonatele mouse-ului in interiorul canvas-ului
             y: e.clientY - rect.top
         };
     };
@@ -402,7 +400,7 @@ imgWrapper.addEventListener('drop', (e) => {
         if (!originalImage) return;
 
         effectModal = document.createElement('div');
-        effectModal.className = 'modal-overlay'; 
+        effectModal.className = 'modal-overlay';  //ia stilul css.
         
         effectModal.innerHTML = `
             <div class="modal">
@@ -428,7 +426,7 @@ imgWrapper.addEventListener('drop', (e) => {
         const closeModal = () => {
             if (effectModal) {
                 document.body.removeChild(effectModal);//stergere din dom
-                effectModal = null; //culoare e null
+                effectModal = null; //ca sa merrga data viitoare
             }
         };
 
@@ -552,7 +550,7 @@ imgWrapper.addEventListener('drop', (e) => {
         const originalCropW = currentSelection.w * scaleX;
         const originalCropH = currentSelection.h * scaleY;
 
-        // 2. Creaza canvas temporar pentru decupare
+        // 2. Creaza canvas nou pentru decupare
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = originalCropW;
         tempCanvas.height = originalCropH;
@@ -561,7 +559,7 @@ imgWrapper.addEventListener('drop', (e) => {
         // Deseneaza DOAR portiunea selectata din imaginea originala
         tempCtx.drawImage(
             originalImage, //imaginea originala
-            originalCropX, originalCropY, originalCropW, originalCropH, // zona dorita
+            originalCropX, originalCropY, originalCropW, originalCropH, // zona dorita din crop
             0, 0, originalCropW, originalCropH // locul in care putem zona dorita, in noul canvas (de la coltul din stanga sus, cu width si height dorite)
         );
 
@@ -626,7 +624,7 @@ imgWrapper.addEventListener('drop', (e) => {
         const closeModal = () => {
             if (textModal) {
                 document.body.removeChild(textModal); //scoate din dom
-                textModal = null;
+                textModal = null; //ca sa mearga data viitoare iar
             }
         };
     
