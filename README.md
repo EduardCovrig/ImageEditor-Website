@@ -24,8 +24,6 @@ A basic web-based image editor built purely with **Vanilla JavaScript, HTML, and
 
     * **Text:** Adds a text input field over the selected area, allowing the user to write text onto the image with customizable size and color (using a modal for UX).
 
-    * **Scale:** Opens a modal to resize the underlying image. Includes automatic aspect ratio calculation for width/height input.
-
     * **Save:** Downloads the currently modified image as a PNG file.
 
 # 🛠️ Technologies Used
@@ -65,7 +63,7 @@ cd ImageEditor-Website
 
     * For *Crop*, the action is applied immediately when you click the tool button after making a selection.
 
-    * *Scale* and T*ext/Effect* will open a **modal** for settings before applying the change.
+    * *Text* and *Effect* will open a **modal** for settings before applying the change.
 
 1. **Save:** Click the Save button to download your final edited image as a PNG.
 
