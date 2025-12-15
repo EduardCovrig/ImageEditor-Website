@@ -1,6 +1,7 @@
 # 🖼️ Quick Image Editor Website
 
 A basic web-based image editor built purely with **Vanilla JavaScript, HTML, and CSS**. This tool allows users to upload an image and perform common editing tasks such as selection, cropping, deletion, scaling, and adding colored fills and text overlays.
+![Demo Quick Image Editor](demo.png)
 
 # ✨ Features
 
